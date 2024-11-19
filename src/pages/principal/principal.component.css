@@ -1,0 +1,13 @@
+.nav-link {
+    color: rgb(249, 252, 250); /* Change la couleur de l'élément actif */
+    font-weight: bold; /* Met en gras l'élément actif */
+  }
+
+.nav-link.active {
+  color: rgb(15, 236, 114); /* Change la couleur de l'élément actif */
+  font-weight: bold; /* Met en gras l'élément actif */
+}
+
+
+
+

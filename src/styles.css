@@ -1,0 +1,45 @@
+/* styles.css */
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  
+}
+
+nav{height:20vh;}
+
+main.container {
+  height: 60vh; /* Utilisation de l'unité vh pour définir la hauteur par rapport à la hauteur de la fenêtre */
+}
+footer {
+  margin-top: auto;
+  background-color: #343a40;height:12vh;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  padding-left: 30px;
+  margin-bottom: 10px;
+}
+
+
+/* Toast */
+.toast-top-left {
+  top: 120px !important;  /* Positionne le toast en haut */
+  left: 12px !important;  /* Le place à gauche */
+  bottom: auto !important;  /* Désactive la position en bas */
+  right: auto !important;  /* Désactive la position à droite */
+  color:white;
+  padding:20px;
+}
+.green{background-color:green;}
+.red{background-color:red;}
+
+
+

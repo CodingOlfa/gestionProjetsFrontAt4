@@ -1,0 +1,157 @@
+<!--<p>listing-departements works!</p>-->
+<div class="d-flex justify-content-between mb-3">
+  <!-- Conteneur du bouton pour l'aligner à gauche -->
+  <div>
+    <button class="btn btn-success" (click)="onAdd(addModal)"
+            *ngIf="authService.hasRole(['ROLE_ADMIN'])">
+      Ajouter un département
+    </button>
+  </div>
+
+  <!-- Conteneur de la zone de recherche pour l'aligner à droite -->
+  <div class="input-group w-25">
+    <span class="input-group-text">
+      <i class="bi bi-search"></i>
+    </span>
+    <input type="text" class="form-control" placeholder="Rechercher un département..." 
+           id="key" name="key" #key (input)="onSearchDepartements(key.value)" />
+  </div>
+</div>
+
+
+<p *ngIf="!departements.length">Aucun département trouvé.</p>
+
+<table class="table table-striped table-bordered" *ngIf="departements.length > 0">
+  <thead>
+    <tr>
+      <th style="width: 70%;">Nom du département</th>
+      <th style="width: 30%;">Action</th>
+    </tr>
+  </thead>
+  <tbody >
+    <tr *ngFor="let departement of departements | paginate: { itemsPerPage: 4, currentPage: page }">
+      <td> <span style="display:none">{{ departement.id }}</span> {{ departement.nom }}</td>
+      <td>
+        <button type="button" class="btn btn-primary" (click)="onEdit(departement, editModal)"
+        *ngIf="authService.hasRole(['ROLE_ADMIN'])">
+          <i class="bi bi-pencil-square"></i>
+        </button>
+        <button type="button" class="btn btn-danger" (click)="onDelete(departement, deleteModal)"
+        *ngIf="authService.hasRole(['ROLE_ADMIN'])">
+          <i class="bi bi-trash"></i>
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="onGetProjets(departement, getProjetsModal)"
+        *ngIf="authService.hasRole(['ROLE_ADMIN','ROLE_RESPONSABLE'])">
+          <i class="bi bi-list-task"></i>
+        </button>
+      </td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td style="text-align:right" colspan="2">
+      <pagination-controls  (pageChange)="page = $event"></pagination-controls>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+
+
+<!-- Template pour le modal de suppression-->
+<ng-template #deleteModal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Confirmation de suppression</h4>
+  </div>
+  <div class="modal-body">
+    Voulez-vous vraiment supprimer le département : {{ departementToDelete.nom }} ?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef.close()">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmDelete()">Confirmer</button>
+  </div>
+</ng-template>
+
+<!-- Template pour le modal d'édition-->
+<ng-template #editModal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">MAJ d'un département</h4>
+  </div>
+  <div class="modal-body">
+    <form #editForm="ngForm">
+      <div class="mb-3">
+        <label for="nom" class="form-label">Nom du département</label>
+        <input type="text" class="form-control" id="nom" [(ngModel)]="dept.nom" name="nom" 
+          placeholder="Entrez le nom du département" required #nom="ngModel" />
+        <!-- Afficher le message d'erreur -->
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" [disabled]="editForm.invalid" (click)="confirmEdit()">Confirmer</button>
+  </div>
+</ng-template>
+
+<!-- Template pour le modal de consultation de projets-->
+<ng-template #getProjetsModal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Liste de projets</h4>
+  </div>
+  <div class="modal-body">
+    <p *ngIf="!projets.length">Aucun projet est lancé par le département.</p>
+    <table class="table table-striped table-bordered" *ngIf="projets.length > 0">
+      <thead>
+        <tr>
+          <th style="width: 60%;">Nom du projet</th>
+          <th style="width: 20%;">Date de début</th>
+          <th style="width: 20%;">Date de fin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let projet of projets.slice((page1 - 1) * 4, page1 * 4)">
+          <td> <span style="display:none">{{ projet.id }}</span> {{ projet.nom }}</td>
+          <td> {{ projet.dateDebut | date:'dd/MM/yyyy' }} </td>
+          <td> {{ projet.dateFin | date:'dd/MM/yyyy'  }} </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="modal-footer">
+    <ngb-pagination *ngIf="projets.length > 0" [collectionSize]="projets.length" [(page)]="page1" 
+    [pageSize]="4"></ngb-pagination>
+    <button type="button" class="btn btn-secondary" (click)="modalRef3.close()">Annuler</button>
+  </div>
+</ng-template>
+
+<!-- Template pour le modal d'ajout -->
+<ng-template #addModal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Ajout de département</h4>
+  </div>
+  <div class="modal-body">
+    <form #addForm="ngForm">
+      <div class="form-group" hidden>
+        <label for="id">Id:</label>
+        <input type="text"  class="form-control" id="id" name="id" [(ngModel)]="deptA.id" #id="ngModel" 
+        />
+    </div>
+      <div class="mb-3">
+        <label for="nom" class="form-label">Nom du département</label>
+        <input type="text" autofocus class="form-control" id="nom" [(ngModel)]="deptA.nom" name="nom" 
+          placeholder="Entrez le nom du département" required  #nom="ngModel"  />
+        <!-- Afficher le message d'erreur -->
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef4.close()">Annuler</button>
+    <button type="button" class="btn btn-danger" [disabled]="addForm.invalid" (click)="confirmAdd()">Confirmer</button>
+  </div>
+</ng-template>
+
